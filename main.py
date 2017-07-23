@@ -7,7 +7,7 @@ global pre, blacklist, voice, player, queue
 pre = ';'
 blacklist = []
 player = None
-queue = None
+queue = []
 
 client = discord.Client()
 
@@ -19,6 +19,7 @@ async def on_ready():
     print('------')
     global player
     while True:
+        print('looped in while')
         if player != None:
             if player.is_done() and len(queue) > 0:
                     vid = queue.pop(0)
@@ -33,10 +34,13 @@ async def on_ready():
 async def on_message(message):
     global blacklist
     if not message.author.id in blacklist:
-        global pre, voice
+        global pre, voice, player
         msg = message.content
         if msg.startswith(pre + 'owo'):
             await client.send_message(message.channel, 'OwO what\'s this?')
+        
+        ##############
+
         if msg.startswith(pre + 'rtd'):
             args = msg.split()
             if len(args) > 1:
@@ -49,6 +53,9 @@ async def on_message(message):
                 limit = 6
             if limit > 0:
                 await client.send_message(message.channel, 'You rolled a ' + str(randint(1, limit)))
+
+        ##############
+        
         if msg.startswith(pre + 'prefix'):
             args = msg.split()
             if len(args) > 1:
@@ -59,6 +66,9 @@ async def on_message(message):
                     await client.send_message(message.channel, 'Error: prefix is too long')
             else:
                 await client.send_message(message.channel, 'Error: No prefix specified')
+
+        ##############
+        
         if msg.startswith(pre + 'blacklist'):
             args = msg.split()
             if len(args) > 1:
@@ -66,6 +76,9 @@ async def on_message(message):
                 await client.send_message(message.channel, 'Client ID blacklisted')
             else:
                 await client.send_message(message.channel, 'Error: No ID specified')
+
+        ##############
+
         if msg.startswith(pre + 'whitelist'):
             args = msg.split()
             if len(args) > 1:
@@ -76,6 +89,9 @@ async def on_message(message):
                     await client.send_message(message.channel, 'Error: Client ID not in blacklist')
             else:
                 await client.send_message(message.channel, 'Error: No ID specified')
+
+        ##############
+        
         if msg.startswith(pre + 'play'):
             args = msg.split()
             if len(args) > 1:
@@ -86,16 +102,33 @@ async def on_message(message):
                     await client.send_message(message.channel, 'Error: Something went wrong')
             else:
                 await client.send_message(message.channel, 'Error: No URL specified')
+
+        ##############
+        
         if msg.startswith(pre + 'connect'):
             voice = await client.join_voice_channel(client.get_channel('201859187565789185'))
+
+        ##############
+        
         if msg == 'lol gay':
             await client.send_message(message.channel, ':gay_pride_flag:')
+
+        ##############
+        
         if msg.startswith(pre + 'loadfromweb'):
             response = urlopen('https://www.woofbark.dog/discordbot/feed')
-            queue = str(response.read().decode()).split(",");
-            await client.send_message(message.channel, "current queue is" + str(response.read.decode()))
+            qstring = str(response.read().decode())
+            for url in qstring.split(","):
+                queue.append(url)
+            await client.send_message(message.channel, "current queue is" + qstring)
             await client.send_message(message.channel, "first song is" + queue[0])
+
+            player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + queue.pop(0))
+            player.start()
+
+        ##############
+        
         if msg.startswith(pre + 'isdone'):
-            await client.send_message(message.channel, player.is_done());
+            await client.send_message(message.channel, player.is_done())
 
 client.run('MjMxMjA1MjEyNDk1MjgyMTg3.DFV4Gw.yUuwRG4iD0HNCDV-tJcZWst-kIA')
