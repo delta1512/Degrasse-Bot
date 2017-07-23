@@ -20,7 +20,7 @@ async def on_ready():
 async def on_message(message):
     global blacklist
     if not message.author.id in blacklist:
-        global pre, voice
+        global pre, voice, player
         msg = message.content
         if msg.startswith(pre + 'owo'):
             await client.send_message(message.channel, 'OwO what\'s this?')
@@ -85,5 +85,7 @@ async def on_message(message):
                 player.start()
             except:
                 await client.send_message(message.channel, 'Error: Something went wrong')
+        if msg.startswith(pre + 'isdone'):
+            await client.send_message(message.channel, player.is_done());
 
 client.run('token')
