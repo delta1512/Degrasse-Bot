@@ -2,6 +2,7 @@ import discord
 import asyncio
 from random import randint
 from urllib.request import urlopen
+from time import sleep
 
 global pre, blacklist, voice
 pre = ';'
@@ -15,11 +16,23 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    while True:
+    if player.is_done():
+        if len(queue) > 0:
+            vid = queue.pop(0)
+            try:
+                player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + vid)
+                player.start()
+            except:
+                await client.send_message(message.channel, 'Error: Something went wrong')
 
 @client.event
 async def on_message(message):
     global blacklist
     if not message.author.id in blacklist:
+
+        queue = None
+
         global pre, voice, player
         msg = message.content
         if msg.startswith(pre + 'owo'):
@@ -79,12 +92,7 @@ async def on_message(message):
             await client.send_message(message.channel, ':gay_pride_flag:')
         if msg.startswith(pre + 'loadfromweb'):
             response = urlopen('https://www.woofbark.dog/discordbot/feed')
-            q = str(response.read().decode());
-            try:
-                player = await voice.create_ytdl_player('https://www.youtube.com/watch?v=' + q)
-                player.start()
-            except:
-                await client.send_message(message.channel, 'Error: Something went wrong')
+            queue = str(response.read().decode()).split(",");
         if msg.startswith(pre + 'isdone'):
             await client.send_message(message.channel, player.is_done());
 
