@@ -1,6 +1,7 @@
 import discord
 import asyncio
 from random import randint
+from urllib.request import urlopen
 
 global pre, blacklist, voice
 pre = ';'
@@ -74,5 +75,15 @@ async def on_message(message):
                 await client.send_message(message.channel, 'Error: No URL specified')
         if msg.startswith(pre + 'connect'):
             voice = await client.join_voice_channel(client.get_channel('channelID'))
+        if msg == 'lol gay':
+            await client.send_message(message.channel, ':gay_pride_flag:')
+        if msg.startswith(pre + 'loadfromweb'):
+            response = urlopen('https://www.woofbark.dog/discordbot/feed')
+            q = response.read();
+            try:
+                player = await voice.create_ytdl_player('https://www.youtube.com/watch?v=' + q)
+                player.start()
+            except:
+                await client.send_message(message.channel, 'Error: Something went wrong')
 
 client.run('token')
