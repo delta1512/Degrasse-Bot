@@ -63,9 +63,15 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, 'Error: No ID specified')
         if msg.startswith(pre + 'play'):
-            voice = await client.join_voice_channel(client.get_channel('channelID'))
-            player = await voice.create_ytdl_player('https://youtu.be/Osoox163p7Y') #voice.create_ffmpeg_player('test.mp3')
-            player.start()
+            args = msg.split()
+            if len(args) > 1:
+                try:
+                    player = await voice.create_ytdl_player(str(args[1]))
+                    player.start()
+                except:
+                    await client.send_message(message.channel, 'Error: Something went wrong')
+            else:
+                await client.send_message(message.channel, 'Error: No URL specified')
         if msg.startswith(pre + 'connect'):
             voice = await client.join_voice_channel(client.get_channel('channelID'))
 
