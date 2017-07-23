@@ -79,7 +79,7 @@ async def on_message(message):
             await client.send_message(message.channel, ':gay_pride_flag:')
         if msg.startswith(pre + 'loadfromweb'):
             response = urlopen('https://www.woofbark.dog/discordbot/feed')
-            q = response.read();
+            q = str(response.read().decode());
             try:
                 player = await voice.create_ytdl_player('https://www.youtube.com/watch?v=' + q)
                 player.start()
