@@ -7,6 +7,8 @@ from time import sleep
 global pre, blacklist, voice
 pre = ';'
 blacklist = []
+global player 
+player = None;
 
 client = discord.Client()
 
@@ -17,14 +19,15 @@ async def on_ready():
     print(client.user.id)
     print('------')
     while True:
-    if player.is_done():
-        if len(queue) > 0:
-            vid = queue.pop(0)
-            try:
-                player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + vid)
-                player.start()
-            except:
-                await client.send_message(message.channel, 'Error: Something went wrong')
+        if player != None:
+            if player.is_done():
+                if len(queue) > 0:
+                    vid = queue.pop(0)
+                    try:
+                        player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + vid)
+                        player.start()
+                    except:
+                        await client.send_message(message.channel, 'Error: Something went wrong')
 
 @client.event
 async def on_message(message):
@@ -33,7 +36,7 @@ async def on_message(message):
 
         queue = None
 
-        global pre, voice, player
+        global pre, voice
         msg = message.content
         if msg.startswith(pre + 'owo'):
             await client.send_message(message.channel, 'OwO what\'s this?')
