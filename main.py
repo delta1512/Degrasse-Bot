@@ -2,13 +2,12 @@ import discord
 import asyncio
 from random import randint
 from urllib.request import urlopen
-from time import sleep
 
-global pre, blacklist, voice
+global pre, blacklist, voice, player, queue
 pre = ';'
 blacklist = []
-global player 
-player = None;
+player = None
+queue = None
 
 client = discord.Client()
 
@@ -18,24 +17,22 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    global player
     while True:
         if player != None:
-            if player.is_done():
-                if len(queue) > 0:
+            if player.is_done() and len(queue) > 0:
                     vid = queue.pop(0)
                     try:
                         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + vid)
                         player.start()
-                    except:
-                        await client.send_message(message.channel, 'Error: Something went wrong')
+                    except Exception as e:
+                        print(e)
+        await asyncio.sleep(3)
 
 @client.event
 async def on_message(message):
     global blacklist
     if not message.author.id in blacklist:
-
-        queue = None
-
         global pre, voice
         msg = message.content
         if msg.startswith(pre + 'owo'):
@@ -90,13 +87,15 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, 'Error: No URL specified')
         if msg.startswith(pre + 'connect'):
-            voice = await client.join_voice_channel(client.get_channel('channelID'))
+            voice = await client.join_voice_channel(client.get_channel('201859187565789185'))
         if msg == 'lol gay':
             await client.send_message(message.channel, ':gay_pride_flag:')
         if msg.startswith(pre + 'loadfromweb'):
             response = urlopen('https://www.woofbark.dog/discordbot/feed')
             queue = str(response.read().decode()).split(",");
+            await client.send_message(message.channel, "current queue is" + str(response.read.decode()))
+            await client.send_message(message.channel, "first song is" + queue[0])
         if msg.startswith(pre + 'isdone'):
             await client.send_message(message.channel, player.is_done());
 
-client.run('token')
+client.run('MjMxMjA1MjEyNDk1MjgyMTg3.DFV4Gw.yUuwRG4iD0HNCDV-tJcZWst-kIA')
