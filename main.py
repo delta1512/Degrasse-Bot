@@ -84,12 +84,13 @@ async def on_message(message):
         ##############
 
         if msg.startswith(pre + 'play'):
-            if (!playing or player.is_done()):
+            if not playing or player.is_done():
                 args = msg.split()
                 if len(args) > 1:
                     try:
                         player = await voice.create_ytdl_player(str(args[1]))
                         player.start()
+                        playing = True
                     except:
                         await client.send_message(message.channel, 'Error: Something went wrong')
                 else:
@@ -112,9 +113,12 @@ async def on_message(message):
             loadSong()
 
 def loadSong():
+    global voice
     response = urlopen('https://www.woofbark.dog/discordbot/popsong')
     song = str(response.read().decode())
-    if song != "nosong":
+    if song == "nosong":
+        playing = False
+    else
         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
         player.start()
 
