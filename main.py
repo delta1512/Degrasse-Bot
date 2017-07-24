@@ -118,7 +118,7 @@ def loadSong():
     song = str(response.read().decode())
     if song == "nosong":
         playing = False
-    else
+    else:
         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
         player.start()
 
