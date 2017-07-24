@@ -115,6 +115,7 @@ async def loadSong():
     else:
         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
         player.start()
+        print('player init ' + player)
         if not playing:
             playing = True
             songLoop()
@@ -122,7 +123,7 @@ async def loadSong():
 async def songLoop():
     global player, playing
     while True:
-        print('checkloop')
+        print('checkloop' + player)
         if playing:
             try:
                 if player.is_done():
