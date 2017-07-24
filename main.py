@@ -14,16 +14,6 @@ client = discord.Client()
 @client.event
 async def on_ready():
     print('Bot initialised successfully')
-    global player, playing
-    while True:
-        print('checkloop')
-        if playing:
-            try:
-                if not player.is_live():
-                    await loadSong()
-            except: 
-                print("error on is live or something")
-        await asyncio.sleep(3)
 
 @client.event
 async def on_message(message):
@@ -125,6 +115,20 @@ async def loadSong():
     else:
         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
         player.start()
-        playing = True
+        if not playing:
+            playing = True
+            songLoop()
+
+async def songLoop():
+    global player, playing
+    while True:
+        print('checkloop')
+        if playing:
+            try:
+                if player.is_done():
+                    await loadSong()
+            except: 
+                print("error on is live or something")
+        await asyncio.sleep(3)
 
 client.run('token')
