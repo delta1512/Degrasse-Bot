@@ -16,9 +16,8 @@ async def on_ready():
     print('Bot initialised successfully')
     global player
     while True:
-        if playing:
-            if playing and player.is_done():
-                await loadSong()
+        if playing and player.is_done():
+            await loadSong()
         await asyncio.sleep(0.7)
 
 @client.event
@@ -121,5 +120,6 @@ async def loadSong():
     else:
         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
         player.start()
+        playing = True
 
 client.run('token')
