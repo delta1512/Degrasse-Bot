@@ -3,7 +3,12 @@ import asyncio
 from random import randint
 from urllib.request import urlopen
 
-pre, blacklist, voice, player, playing = ';', [], None, None, False
+global pre, blacklist, voice, player, playing
+pre = ';'
+blacklist = []
+voice = None
+player = None
+playing = False
 
 client = discord.Client()
 
@@ -13,6 +18,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    global pre, blacklist, voice, player, playing
     if not message.author.id in blacklist:
         msg = message.content
         if msg.startswith(pre + 'owo'):
@@ -101,6 +107,7 @@ async def on_message(message):
             await loadSong()
 
 async def loadSong():
+    global pre, blacklist, voice, player, playing
     response = urlopen('https://www.woofbark.dog/discordbot/popsong')
     song = str(response.read().decode())
     if song == "nosong":
@@ -114,6 +121,7 @@ async def loadSong():
             songLoop()
 
 async def songLoop():
+    global pre, blacklist, voice, player, playing
     while True:
         print('checkloop', player)
         if playing:
