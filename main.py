@@ -3,7 +3,7 @@ import asyncio
 from random import randint
 from urllib.request import urlopen
 
-pre, blacklist, voice, player, playing = ';', [], None, False
+pre, blacklist, voice, player, playing = ';', [], None, None, False
 
 client = discord.Client()
 
