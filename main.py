@@ -103,7 +103,6 @@ async def on_message(message):
         ##############
 
         if msg.startswith(pre + 'loadfromweb'):
-            playing = True
             await loadSong()
 
 async def loadSong():
@@ -115,21 +114,19 @@ async def loadSong():
     else:
         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
         player.start()
-        print('player init ', player)
         if not playing:
             playing = True
-            songLoop()
+            await songLoop()
 
 async def songLoop():
     global pre, blacklist, voice, player, playing
     while True:
-        print('checkloop', player)
         if playing:
             try:
                 if player.is_done():
                     await loadSong()
             except: 
                 print("error on is live or something")
-        await asyncio.sleep(3)
+        await asyncio.sleep(0.5)
 
 client.run('token')
