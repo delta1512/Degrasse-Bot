@@ -14,7 +14,7 @@ client = discord.Client()
 @client.event
 async def on_ready():
     print('Bot initialised successfully')
-    global player
+    global player, playing
     while True:
         if playing and player.is_done():
             await loadSong()
