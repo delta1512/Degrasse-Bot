@@ -18,7 +18,7 @@ async def on_ready():
     while True:
         print('checkloop')
         if playing:
-            if player.is_done():
+            if not player.is_live():
                 await loadSong()
         await asyncio.sleep(3)
 
@@ -114,7 +114,7 @@ async def on_message(message):
             await loadSong()
 
 async def loadSong():
-    global voice
+    global voice, player
     response = urlopen('https://www.woofbark.dog/discordbot/popsong')
     song = str(response.read().decode())
     if song == "nosong":
