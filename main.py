@@ -16,9 +16,10 @@ async def on_ready():
     print('Bot initialised successfully')
     global player, playing
     while True:
-        if playing and player.is_done():
-            await loadSong()
-            print('checkloop')
+        print('checkloop')
+        if playing:
+            if player.is_done():
+                await loadSong()
         await asyncio.sleep(3)
 
 @client.event
