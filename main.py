@@ -18,8 +18,11 @@ async def on_ready():
     while True:
         print('checkloop')
         if playing:
-            if not player.is_live():
-                await loadSong()
+            try:
+                if not player.is_live():
+                    await loadSong()
+            except: 
+                print("error on is live or something")
         await asyncio.sleep(3)
 
 @client.event
