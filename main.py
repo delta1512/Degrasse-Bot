@@ -112,7 +112,7 @@ async def on_message(message):
             playing = True
             loadSong()
 
-def loadSong():
+async def loadSong():
     global voice
     response = urlopen('https://www.woofbark.dog/discordbot/popsong')
     song = str(response.read().decode())
