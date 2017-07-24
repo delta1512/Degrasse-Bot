@@ -18,7 +18,8 @@ async def on_ready():
     while True:
         if playing and player.is_done():
             await loadSong()
-        await asyncio.sleep(0.7)
+            print('checkloop')
+        await asyncio.sleep(3)
 
 @client.event
 async def on_message(message):
