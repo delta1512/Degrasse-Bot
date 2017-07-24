@@ -3,33 +3,42 @@ import asyncio
 from random import randint
 from urllib.request import urlopen
 
-global pre, blacklist, voice, player, playing
+global pre, blacklist, voice, player, queue
 pre = ';'
 blacklist = []
 player = None
-playing = false
+queue = []
 
 client = discord.Client()
 
 @client.event
 async def on_ready():
-    print('Bot initialised successfully')
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
     global player
     while True:
-        if playing:
-            if player.is_done() and playing:
-                loadSong()
-        await asyncio.sleep(0.7)
+        print('looped in while')
+        if player != None:
+            if player.is_done() and len(queue) > 0:
+                    vid = queue.pop(0)
+                    try:
+                        player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + vid)
+                        player.start()
+                    except Exception as e:
+                        print(e)
+        await asyncio.sleep(3)
 
 @client.event
 async def on_message(message):
     global blacklist
     if not message.author.id in blacklist:
-        global pre, voice, player, playing
+        global pre, voice, player
         msg = message.content
         if msg.startswith(pre + 'owo'):
             await client.send_message(message.channel, 'OwO what\'s this?')
-
+        
         ##############
 
         if msg.startswith(pre + 'rtd'):
@@ -46,7 +55,7 @@ async def on_message(message):
                 await client.send_message(message.channel, 'You rolled a ' + str(randint(1, limit)))
 
         ##############
-
+        
         if msg.startswith(pre + 'prefix'):
             args = msg.split()
             if len(args) > 1:
@@ -59,7 +68,7 @@ async def on_message(message):
                 await client.send_message(message.channel, 'Error: No prefix specified')
 
         ##############
-
+        
         if msg.startswith(pre + 'blacklist'):
             args = msg.split()
             if len(args) > 1:
@@ -82,40 +91,44 @@ async def on_message(message):
                 await client.send_message(message.channel, 'Error: No ID specified')
 
         ##############
-
+        
         if msg.startswith(pre + 'play'):
-            if (!playing or player.is_done()):
-                args = msg.split()
-                if len(args) > 1:
-                    try:
-                        player = await voice.create_ytdl_player(str(args[1]))
-                        player.start()
-                    except:
-                        await client.send_message(message.channel, 'Error: Something went wrong')
-                else:
-                    await client.send_message(message.channel, 'Error: No URL specified')
+            args = msg.split()
+            if len(args) > 1:
+                try:
+                    player = await voice.create_ytdl_player(str(args[1]))
+                    player.start()
+                except:
+                    await client.send_message(message.channel, 'Error: Something went wrong')
+            else:
+                await client.send_message(message.channel, 'Error: No URL specified')
 
         ##############
-
+        
         if msg.startswith(pre + 'connect'):
-            voice = await client.join_voice_channel(client.get_channel('voiceChannelID'))
+            voice = await client.join_voice_channel(client.get_channel('201859187565789185'))
 
         ##############
-
+        
         if msg == 'lol gay':
             await client.send_message(message.channel, ':gay_pride_flag:')
 
         ##############
-
+        
         if msg.startswith(pre + 'loadfromweb'):
-            playing = True
-            loadSong()
+            response = urlopen('https://www.woofbark.dog/discordbot/feed')
+            qstring = str(response.read().decode())
+            for url in qstring.split(","):
+                queue.append(url)
+            await client.send_message(message.channel, "current queue is" + qstring)
+            await client.send_message(message.channel, "first song is" + queue[0])
 
-def loadSong():
-    response = urlopen('https://www.woofbark.dog/discordbot/popsong')
-    song = str(response.read().decode())
-    if song != "nosong":
-        player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
-        player.start()
+            player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + queue.pop(0))
+            player.start()
 
-client.run('token')
+        ##############
+        
+        if msg.startswith(pre + 'isdone'):
+            await client.send_message(message.channel, player.is_done())
+
+client.run('MjMxMjA1MjEyNDk1MjgyMTg3.DFV4Gw.yUuwRG4iD0HNCDV-tJcZWst-kIA')

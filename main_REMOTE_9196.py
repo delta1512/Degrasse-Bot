@@ -3,11 +3,11 @@ import asyncio
 from random import randint
 from urllib.request import urlopen
 
-global pre, blacklist, voice, player, playing
+global pre, blacklist, voice, player, queue
 pre = ';'
 blacklist = []
 player = None
-playing = false
+queue = []
 
 client = discord.Client()
 
@@ -16,16 +16,21 @@ async def on_ready():
     print('Bot initialised successfully')
     global player
     while True:
-        if playing:
-            if player.is_done() and playing:
-                loadSong()
-        await asyncio.sleep(0.7)
+        if player != None:
+            if player.is_done() and len(queue) > 0:
+                vid = queue.pop(0)
+                try:
+                    player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + vid)
+                    player.start()
+                except:
+                    pass
+        await asyncio.sleep(3)
 
 @client.event
 async def on_message(message):
     global blacklist
     if not message.author.id in blacklist:
-        global pre, voice, player, playing
+        global pre, voice, player
         msg = message.content
         if msg.startswith(pre + 'owo'):
             await client.send_message(message.channel, 'OwO what\'s this?')
@@ -84,16 +89,15 @@ async def on_message(message):
         ##############
 
         if msg.startswith(pre + 'play'):
-            if (!playing or player.is_done()):
-                args = msg.split()
-                if len(args) > 1:
-                    try:
-                        player = await voice.create_ytdl_player(str(args[1]))
-                        player.start()
-                    except:
-                        await client.send_message(message.channel, 'Error: Something went wrong')
-                else:
-                    await client.send_message(message.channel, 'Error: No URL specified')
+            args = msg.split()
+            if len(args) > 1:
+                try:
+                    player = await voice.create_ytdl_player(str(args[1]))
+                    player.start()
+                except:
+                    await client.send_message(message.channel, 'Error: Something went wrong')
+            else:
+                await client.send_message(message.channel, 'Error: No URL specified')
 
         ##############
 
@@ -108,14 +112,11 @@ async def on_message(message):
         ##############
 
         if msg.startswith(pre + 'loadfromweb'):
-            playing = True
-            loadSong()
-
-def loadSong():
-    response = urlopen('https://www.woofbark.dog/discordbot/popsong')
-    song = str(response.read().decode())
-    if song != "nosong":
-        player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
-        player.start()
+            response = urlopen('https://www.woofbark.dog/discordbot/feed')
+            qstring = str(response.read().decode())
+            for url in qstring.split(","):
+                queue.append(url)
+            player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + queue.pop(0))
+            player.start()
 
 client.run('token')
