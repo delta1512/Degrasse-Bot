@@ -7,7 +7,7 @@ global pre, blacklist, voice, player, playing
 pre = ';'
 blacklist = []
 player = None
-playing = false
+playing = False
 
 client = discord.Client()
 
@@ -17,8 +17,8 @@ async def on_ready():
     global player
     while True:
         if playing:
-            if player.is_done() and playing:
-                loadSong()
+            if playing and player.is_done():
+                await loadSong()
         await asyncio.sleep(0.7)
 
 @client.event
@@ -110,7 +110,7 @@ async def on_message(message):
 
         if msg.startswith(pre + 'loadfromweb'):
             playing = True
-            loadSong()
+            await loadSong()
 
 async def loadSong():
     global voice
