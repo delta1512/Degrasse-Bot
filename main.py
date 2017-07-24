@@ -3,11 +3,7 @@ import asyncio
 from random import randint
 from urllib.request import urlopen
 
-global pre, blacklist, voice, player, playing
-pre = ';'
-blacklist = []
-player = None
-playing = False
+pre, blacklist, voice, player, playing = ';', [], None, False
 
 client = discord.Client()
 
@@ -17,9 +13,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global blacklist
     if not message.author.id in blacklist:
-        global pre, voice, player, playing
         msg = message.content
         if msg.startswith(pre + 'owo'):
             await client.send_message(message.channel, 'OwO what\'s this?')
@@ -107,7 +101,6 @@ async def on_message(message):
             await loadSong()
 
 async def loadSong():
-    global voice, player
     response = urlopen('https://www.woofbark.dog/discordbot/popsong')
     song = str(response.read().decode())
     if song == "nosong":
@@ -115,15 +108,14 @@ async def loadSong():
     else:
         player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
         player.start()
-        print('player init ' + player)
+        print('player init ', player)
         if not playing:
             playing = True
             songLoop()
 
 async def songLoop():
-    global player, playing
     while True:
-        print('checkloop' + player)
+        print('checkloop', player)
         if playing:
             try:
                 if player.is_done():
