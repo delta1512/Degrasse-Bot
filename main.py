@@ -102,7 +102,7 @@ async def on_message(message):
 
         ##############
 
-        if msg.startswith(pre + 'loadfromweb'):
+        if msg.startswith(pre + 'loadqueue'):
             await loadSong()
 
 async def loadSong():
