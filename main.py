@@ -8,7 +8,7 @@ pre = ';'
 blacklist = []
 voice = None
 audio_player = None
-is_playing = False
+playing = False
 last_message_source = None
 
 client = discord.Client()
@@ -55,6 +55,9 @@ async def on_message(message):
 		elif cmd.startswith(pre + 'connect'):
 			await voice_connect(message)
 
+		elif cmd.startswith(pre + 'disconnect'):
+			await voice_disconnect(message)
+
 		elif cmd.startswith(pre + 'loadqueue'):
 			await song_load_queue(message)
 
@@ -98,55 +101,63 @@ async def set_prefix(message):
 		await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Correct usage: `prefix [newprefix]`')
 
 async def song_play(message):
-	await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | `;play` has been deprecated in favor of the online queue: https://woofbark.dog/discordbot')
+	await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Go here to add your song to the queue: https://woofbark.dog/discordbot')
 
 async def voice_connect(message):
 	global voice
 
 	for vchannel in message.author.server.channels:
+		found_user = False
 		if vchannel.type == discord.ChannelType.voice:
 			print("> " + vchannel.name)
 			for member in vchannel.voice_members:
 				print(member.name)
 				if member.id == message.author.id:
 					voice = await client.join_voice_channel(client.get_channel(vchannel.id))
-					await client.send_message(message.channel, ":white_check_mark: " + message.author.mention + " | Joined! Type `;loadqueue` to start playing.")
+					await client.send_message(message.channel, ":white_check_mark: " + message.author.mention + " | Joined your voice channel!")
 					break
-			break
+		if found_user: break
+
+async def voice_disconnect(message):
+	global voice, playing
+
+	playing = False
+	await voice.disconnect()
+	voice = None
+	await client.send_message(message.channel, ":white_check_mark: " + message.author.mention + " | Disconnected.")
 
 async def song_load_queue(message):
-	global voice, is_playing
+	global voice, playing
 	if voice == None:
 		await client.send_message(message.channel, ":information_source: " + message.author.mention + " | I'm not connected to a channel yet. Type `;connect` first.");
-	elif is_playing:
+	elif playing:
 		await client.send_message(message.channel, ":information_source: " + message.author.mention + " | I'm already playing from the queue. Type `;skip` to skip the current song.")
 	else:
-		await client.send_message(message.channel, ":arrow_down: " + message.author.mention + " | Loading queue...");
-		await loadSong()
+		if not playing:
+			await client.send_message(message.channel, ":arrow_down: " + message.author.mention + " | Loading queue...");
+			await songLoop()
 
 #Functions
 
-async def loadSong():
-	global player, voice, is_playing, last_message_source
-	response = urlopen('https://www.woofbark.dog/discordbot/popsong')
-	url = str(response.read().decode())
-	if url == "nosong":
-		is_playing = False
-	else:
-		player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + url)
-		player.start()
-		await client.change_status(discord.Game(name=player.title), False)
-		await client.send_message(last_message_source, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
-		if not is_playing:
-			is_playing = True
-			await songLoop()
-
 async def songLoop():
-	global player, is_playing
-	while True:
-		if is_playing:
-			if player.is_done():
-				await loadSong()
-		await asyncio.sleep(0.5)
+	global player, voice, last_message_source, playing
+	playing = True
+	while (playing):
+		response = urlopen('https://www.woofbark.dog/discordbot/popsong')
+		url = str(response.read().decode())
+		if url != "nosong":
+			player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + url)
+			player.start()
+			await client.change_status(discord.Game(name=player.title), False)
+			await client.send_message(last_message_source, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
+			await waitTillDone()
+		else:
+			await asyncio.sleep(1)
 
-client.run('MzM5MTc2MTEyMzA1MzQwNDE2.DFgJ5A.QHLfQd5KMSvTcHoGoNDjxVUsnOU')
+async def waitTillDone():
+	global player
+	while not player.is_done():
+		await asyncio.sleep(0.5)
+	return True
+
+client.run('MzM5MTc2MTEyMzA1MzQwNDE2.DF1qVA.UqW9GwapGBzyAIIw-UOb4dbKY-w')
