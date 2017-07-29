@@ -2,131 +2,151 @@ import discord
 import asyncio
 from random import randint
 from urllib.request import urlopen
+import warnings
 
-global pre, blacklist, voice, player, playing
 pre = ';'
 blacklist = []
 voice = None
-player = None
-playing = False
+audio_player = None
+is_playing = False
+last_message_source = None
 
 client = discord.Client()
 
 @client.event
 async def on_ready():
-    print('Bot initialised successfully')
+	print('Bot initialized successfully.');
 
 @client.event
 async def on_message(message):
-    global pre, blacklist, voice, player, playing
-    if not message.author.id in blacklist:
-        msg = message.content
-        if msg.startswith(pre + 'owo'):
-            await client.send_message(message.channel, 'OwO what\'s this?')
+	global last_message_source
 
-        ##############
+	if message.author.id != 339176112305340416 and message.content.startswith(pre):
+		await client.delete_message(message)
+	if not message.author.id in blacklist:
 
-        if msg.startswith(pre + 'rtd'):
-            args = msg.split()
-            if len(args) > 1:
-                try:
-                    limit = int(args[1])
-                except:
-                    limit = -1
-                    await client.send_message(message.channel, 'Error: Invalid number')
-            else:
-                limit = 6
-            if limit > 0:
-                await client.send_message(message.channel, 'You rolled a ' + str(randint(1, limit)))
+		#Start command declaration
+		cmd = message.content
 
-        ##############
+		if cmd.startswith(pre):
+			last_message_source = message.channel
 
-        if msg.startswith(pre + 'prefix'):
-            args = msg.split()
-            if len(args) > 1:
-                if len(argv[1]) <= 5:
-                    pre = str(argv[1])
-                    await client.send_message(message.channel, 'Prefix changed successfully: `' + pre + '`')
-                else:
-                    await client.send_message(message.channel, 'Error: prefix is too long')
-            else:
-                await client.send_message(message.channel, 'Error: No prefix specified')
+		#Misc / Fun commands
+		if cmd.startswith(pre + 'owo'):
+			await owo_check(message)
 
-        ##############
+		elif cmd.startswith(pre + 'rtd'):
+			await roll_the_dice(message)
 
-        if msg.startswith(pre + 'blacklist'):
-            args = msg.split()
-            if len(args) > 1:
-                blacklist.append(args[1])
-                await client.send_message(message.channel, 'Client ID blacklisted')
-            else:
-                await client.send_message(message.channel, 'Error: No ID specified')
+		#Administration commands
+		elif cmd.startswith(pre + 'prefix'):
+			await set_prefix(message)
 
-        ##############
+		# elif cmd.startswith(pre + 'blacklist'):
+		# 	await blacklist_user(message)
 
-        if msg.startswith(pre + 'whitelist'):
-            args = msg.split()
-            if len(args) > 1:
-                try:
-                    blacklist.remove(args[1])
-                    await client.send_message(message.channel, 'Client ID removed from blacklist')
-                except:
-                    await client.send_message(message.channel, 'Error: Client ID not in blacklist')
-            else:
-                await client.send_message(message.channel, 'Error: No ID specified')
+		# elif cmd.startswith(pre + 'whitelist'):
+		# 	await whitelist_user(message)
 
-        ##############
+		#Music commands
+		elif cmd.startswith(pre + 'play'):
+			await song_play(message)
 
-        if msg.startswith(pre + 'play'):
-            if not playing or player.is_done():
-                args = msg.split()
-                if len(args) > 1:
-                    try:
-                        player = await voice.create_ytdl_player(str(args[1]))
-                        player.start()
-                        playing = True
-                    except:
-                        await client.send_message(message.channel, 'Error: Something went wrong')
-                else:
-                    await client.send_message(message.channel, 'Error: No URL specified')
+		elif cmd.startswith(pre + 'connect'):
+			await voice_connect(message)
 
-        ##############
+		elif cmd.startswith(pre + 'loadqueue'):
+			await song_load_queue(message)
 
-        if msg.startswith(pre + 'connect'):
-            voice = await client.join_voice_channel(client.get_channel('voiceChannelID'))
+		# else if cmd.startswith(pre + 'skip'):
+		# 	song_skip(message)
 
-        ##############
+		# else if cmd.startswith(pre + 'dc'):
+		# 	voice_disconnect(message)
 
-        if msg == 'lol gay':
-            await client.send_message(message.channel, ':gay_pride_flag:')
+#Command definitions
 
-        ##############
+async def owo_check(message):
+	await client.send_message(message.channel, 'OwO what\'s this?')
 
-        if msg.startswith(pre + 'loadqueue'):
-            await loadSong()
+async def roll_the_dice(message):
+	args = message.content.split()
+	if len(args) > 1:
+		try:
+			limit = int(args[1])
+		except:
+			limit = -1
+			await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Invalid number')
+	else:
+		limit = 6
+	if limit > 0:
+		await client.send_message(message.channel, ':game_die: ' + message.author.mention + ' | You rolled a ' + str(randint(1, limit)))
+	else:
+		await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Invalid number')
+
+async def set_prefix(message):
+	mlength = 3
+	args = message.content.split()
+	if len(args) == 2:
+		if len(args[1]) <= mlength:
+			global pre;
+			pre = str(args[1])
+			await client.send_message(message.channel, ':asterisk: ' + message.author.mention + ' | Prefix changed to: `' + pre + '`')
+		else:
+			await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Prefix is too long. Maximum length: ' + string(mlength))
+	else:
+		await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Correct usage: `prefix [newprefix]`')
+
+async def song_play(message):
+	await client.send_message(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | `;play` has been deprecated in favor of the online queue: https://woofbark.dog/discordbot')
+
+async def voice_connect(message):
+	global voice
+
+	for vchannel in message.author.server.channels:
+		if vchannel.type == discord.ChannelType.voice:
+			print("> " + vchannel.name)
+			for member in vchannel.voice_members:
+				print(member.name)
+				if member.id == message.author.id:
+					voice = await client.join_voice_channel(client.get_channel(vchannel.id))
+					await client.send_message(message.channel, ":white_check_mark: " + message.author.mention + " | Joined! Type `;loadqueue` to start playing.")
+					break
+			break
+
+async def song_load_queue(message):
+	global voice, is_playing
+	if voice == None:
+		await client.send_message(message.channel, ":information_source: " + message.author.mention + " | I'm not connected to a channel yet. Type `;connect` first.");
+	elif is_playing:
+		await client.send_message(message.channel, ":information_source: " + message.author.mention + " | I'm already playing from the queue. Type `;skip` to skip the current song.")
+	else:
+		await client.send_message(message.channel, ":arrow_down: " + message.author.mention + " | Loading queue...");
+		await loadSong()
+
+#Functions
 
 async def loadSong():
-    global pre, blacklist, voice, player, playing
-    response = urlopen('https://www.woofbark.dog/discordbot/popsong')
-    song = str(response.read().decode())
-    if song == "nosong":
-        playing = False
-    else:
-        player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + song)
-        player.start()
-        if not playing:
-            playing = True
-            await songLoop()
+	global player, voice, is_playing, last_message_source
+	response = urlopen('https://www.woofbark.dog/discordbot/popsong')
+	url = str(response.read().decode())
+	if url == "nosong":
+		is_playing = False
+	else:
+		player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + url)
+		player.start()
+		await client.change_status(discord.Game(name=player.title), False)
+		await client.send_message(last_message_source, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
+		if not is_playing:
+			is_playing = True
+			await songLoop()
 
 async def songLoop():
-    global pre, blacklist, voice, player, playing
-    while True:
-        if playing:
-            try:
-                if player.is_done():
-                    await loadSong()
-            except: 
-                print("error on is live or something")
-        await asyncio.sleep(0.5)
+	global player, is_playing
+	while True:
+		if is_playing:
+			if player.is_done():
+				await loadSong()
+		await asyncio.sleep(0.5)
 
-client.run('token')
+client.run('MzM5MTc2MTEyMzA1MzQwNDE2.DFgJ5A.QHLfQd5KMSvTcHoGoNDjxVUsnOU')
