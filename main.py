@@ -40,8 +40,8 @@ async def on_message(message):
 		elif cmd.startswith(pre + 'rtd'):
 			await roll_the_dice(message)
 
-		elif cmd.startswith(pre + 'unixtime' ) or cmd.startswith(pre + 'epochtime'):
-			await discord_send(message.channel,  ':clock3: ' + message.author.mention + ' | Unix time: ' + popen('date +%s').read())
+		elif cmd.startswith(pre + 'time'):
+			await discord_send(message.channel,  ':clock3: ' + message.author.mention + ' | Time [Unix | Nano]: ' + popen('date \'+%s %N\'').read())
 
 		elif cmd.startswith('what time is it'):
 			await discord_send(message.channel, "ARE YOU WIMBLY WOMBLY MATE!? ITS ALMOST SAX APPLE DIN DIN SPROINGO TOINGO SIXY CHAP")
