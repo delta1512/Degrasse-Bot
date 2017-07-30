@@ -5,6 +5,15 @@ from urllib.request import urlopen
 import warnings
 from os import popen
 
+class CB:
+    buff = []
+    def __init__(self, string):
+        self.buff = [i for i in string]
+    def circulate(self):
+        self.buff.append(self.buff.pop(0))
+    def getString(self):
+        return ''.join(self.buff)
+
 pre = ';'
 blacklist = []
 voice = None
@@ -159,7 +168,7 @@ async def songLoop():
 		# left = 3
 		if url != "nosong":
 			left = str(response[1])
-			player = await voice.create_ytdl_player("https://www.youtube.com/watch?v=" + url)
+			player = await voice.create_ytdl_player(url)
 			# player = await voice.create_ytdl_player("https://soundcloud.com/adhesivewombat/kalimbo");
 			player.start()
 			await client.change_status(discord.Game(name=str(left) + " songs queued."), False)
@@ -172,27 +181,24 @@ async def songLoop():
 
 async def waitTillDone():
 	global player, voice, allow_nick_changing
-	title = player.title
-	length = 20
-	string = title[:length]
-	maxind = len(title) + 3
-	title += " | "
-	ind = length
+	buff = CB(player.title + "   ") #special spaces
 
 	while not player.is_done():
 		if allow_nick_changing:
-			await client.change_nickname(voice.server.me, "▶ " + string)
-			string = string[2:] + title[ind:ind+2]
-			ind += 2
-			if ind >= maxind:
-				ind = 0
-			# await asyncio.sleep(0.2)
+			# try:
+			await client.change_nickname(last_message_source.server.me, "▶ " + buff.getString()[:24])
+			buff.circulate()
+			buff.circulate()
+			await asyncio.sleep(0.1)
+			# except Exception as e:
+			#   print(e)
+			# 	print("some weird error in waittilldone")
 	return True
 
 async def nick_default():
-	global allow_nick_changing, voice
+	global allow_nick_changing, last_message_source
 	allow_nick_changing = False
-	await client.change_nickname(voice.server.me, None)
+	await client.change_nickname(last_message_source.server.me, None)
 
 def nick_changing():
 	global allow_nick_changing
