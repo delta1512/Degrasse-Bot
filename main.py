@@ -4,6 +4,7 @@ from random import randint
 from urllib.request import urlopen
 import warnings
 from os import popen
+import sys
 
 class CB:
     buff = []
@@ -32,7 +33,7 @@ async def on_ready():
 async def on_message(message):
 	global last_message_source
 
-	if message.author.id != 339176112305340416 and message.content.startswith(pre):
+	if message.author.id != 339176112305340416 and message.content.startswith(pre) and message.content != ";-;":
 		await client.delete_message(message)
 	if not message.author.id in blacklist:
 
@@ -118,7 +119,7 @@ async def set_prefix(message):
 		await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Correct usage: `prefix [newprefix]`')
 
 async def song_play(message):
-	await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Go here to add your song to the queue: https://woofbark.dog/discordbot')
+	await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Add songs here > http://queue-bot.tk/')
 
 async def voice_connect(message):
 	global voice
@@ -186,10 +187,10 @@ async def waitTillDone():
 	while not player.is_done():
 		if allow_nick_changing:
 			# try:
-			await client.change_nickname(last_message_source.server.me, "▶ " + buff.getString()[:24])
-			buff.circulate()
-			buff.circulate()
-			await asyncio.sleep(0.1)
+			# await client.change_nickname(last_message_source.server.me, "▶ " + buff.getString()[:21])
+			# buff.circulate()
+			# buff.circulate()
+			await asyncio.sleep(0.5)
 			# except Exception as e:
 			#   print(e)
 			# 	print("some weird error in waittilldone")
@@ -205,12 +206,15 @@ def nick_changing():
 	allow_nick_changing = True
 
 async def discord_send(channel, string):
-	await nick_default()
+	# await nick_default()
 	await client.send_message(channel, string)
-	nick_changing()
+	# nick_changing()
+
+import signal
+def signal_handler(signal_frame):
+	# await client.change_nickname(last_message_source.server.me)
+	print('ended!!!!!1111')
+	sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
 
 client.run('MzM5MTc2MTEyMzA1MzQwNDE2.DF1qVA.UqW9GwapGBzyAIIw-UOb4dbKY-w')
-
-# finally:
-# 	await client.change_nickname(voice.server.me)
-# 	print('ended!!!!!1111')
