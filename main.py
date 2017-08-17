@@ -184,22 +184,23 @@ async def songLoop():
 	global player, voice, last_message_source, playing, out_channel
 	playing = True
 	while (playing):
-		# try:
-		response = urlopen('https://www.woofbark.dog/discordbot/popsong').read().decode().split(",")
-		url = str(response[0])
-		# left = 3
-		if url != "nosong":
-			left = str(response[1])
-			player = await voice.create_ytdl_player(url)
-			# player = await voice.create_ytdl_player("https://soundcloud.com/adhesivewombat/kalimbo");
-			player.start()
-			await client.change_status(discord.Game(name=str(left) + " songs queued."), False)
-			await discord_send(out_channel, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
-			await waitTillDone()
-		else:
-			await asyncio.sleep(1)
-		# except:
-		# 	print('error somewhere in songloop')
+		try:
+			response = urlopen('https://www.woofbark.dog/discordbot/popsong').read().decode().split(",")
+			url = str(response[0])
+			# left = 3
+			if url != "nosong":
+				left = str(response[1])
+				player = await voice.create_ytdl_player(url)
+				# player = await voice.create_ytdl_player("https://soundcloud.com/adhesivewombat/kalimbo");
+				player.start()
+				await client.change_status(discord.Game(name=str(left) + " songs queued."), False)
+				await discord_send(out_channel, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
+				await waitTillDone()
+			else:
+				await asyncio.sleep(1)
+		except:
+			print('urlopen probably failed')
+			await asyncio.sleep(5)
 
 async def waitTillDone():
 	global player, voice, allow_nick_changing
