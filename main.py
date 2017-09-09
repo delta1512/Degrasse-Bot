@@ -1,10 +1,9 @@
 import discord
 import asyncio
+import helpers
 from random import randint
 from urllib.request import urlopen
 from os import popen
-from circularbuffer import CB
-import helpers
 
 pre = ';'
 blacklist = []
@@ -128,9 +127,9 @@ async def song_play(message):
 	await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Add songs here > http://queue-bot.tk/')
 
 async def song_skip(message):
-	global out_channel, player
-	player.stop()
+	global player, out_channel
 
+	player.stop()
 	await discord_send(out_channel, ':white_check_mark: ' + message.author.mention + ' | Skipped the current song!')
 
 async def voice_connect(message):
@@ -155,14 +154,14 @@ async def voice_connect(message):
 		await songLoop()
 
 async def voice_disconnect(message):
-	global voice, playing, out_channel
+	global voice, player, out_channel
 
-	playing = False
 	await voice.disconnect()
 	voice = None
+	player.stop()
 	await discord_send(out_channel, ":white_check_mark: " + message.author.mention + " | Disconnected.")
 
-#Functions
+#Intrinsic Functions
 
 async def songLoop():
 	global player, voice, out_channel
@@ -175,7 +174,7 @@ async def songLoop():
 				left = str(response[1])
 				player = await voice.create_ytdl_player(url)
 				player.start()
-				await client.change_status(discord.Game(name=str(left) + " songs queued."), False)
+				await client.change_presence(game=discord.Game(name=left + " Songs Queued"))
 				await discord_send(out_channel, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
 				while not player.is_done():
 					await asyncio.sleep(0.3)
