@@ -8,8 +8,6 @@ from os import popen
 pre = ';'
 blacklist = []
 voice = None
-audio_player = None
-playing = False
 allow_nick_changing = True
 last_message_source = None
 out_channel = None
