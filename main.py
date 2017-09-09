@@ -163,7 +163,6 @@ async def voice_disconnect(message):
 
 async def songLoop():
 	global player, voice, out_channel
-	playing = True
 	while voice != None:
 		try:
 			response = urlopen('https://www.woofbark.dog/discordbot/popsong').read().decode().split(",")
