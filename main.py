@@ -128,30 +128,31 @@ async def song_play(message):
 	await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Add songs here > http://queue-bot.tk/')
 
 async def song_skip(message):
-	global out_channel, playing, player
-	playing = False
+	global out_channel, player
 	player.stop()
-	player = None
-	await song_load_queue(message)
 
 	await discord_send(out_channel, ':white_check_mark: ' + message.author.mention + ' | Skipped the current song!')
 
 async def voice_connect(message):
-	global voice, out_channel
+	global voice, player, out_channel
 
-	for vchannel in message.author.server.channels:
-		found_user = False
-		if vchannel.type == discord.ChannelType.voice:
-			print("[DEBUG] Joined Channel: " + vchannel.name)
-			for member in vchannel.voice_members:
-				print("[DEBUG] Connected Users: " + member.name)
-				if member.id == message.author.id:
-					voice = await client.join_voice_channel(client.get_channel(vchannel.id))
-					await discord_send(out_channel, ":white_check_mark: " + message.author.mention + " | Joined your voice channel!")
-					found_user = True
-					break
-		if found_user: break
-	await song_load_queue(message)
+	if voice != None:
+		await discord_send(out_channel, ":information_source: " + message.author.mention + " | I'm already playing from the queue. Type `;skip` to skip the current song.")
+	else:
+		for vchannel in message.author.server.channels:
+			found_user = False
+			if vchannel.type == discord.ChannelType.voice:
+				print("[DEBUG] Joined Channel: " + vchannel.name)
+				for member in vchannel.voice_members:
+					print("[DEBUG] Connected Users: " + member.name)
+					if member.id == message.author.id:
+						voice = await client.join_voice_channel(client.get_channel(vchannel.id))
+						await discord_send(out_channel, ":white_check_mark: " + message.author.mention + " | Joined your voice channel!")
+						found_user = True
+						break
+			if found_user: break
+		await discord_send(out_channel, ":arrow_down: " + message.author.mention + " | Loading queue...");
+		await songLoop()
 
 async def voice_disconnect(message):
 	global voice, playing, out_channel
@@ -161,23 +162,12 @@ async def voice_disconnect(message):
 	voice = None
 	await discord_send(out_channel, ":white_check_mark: " + message.author.mention + " | Disconnected.")
 
-async def song_load_queue(message):
-	global voice, playing
-	if voice == None:
-		await discord_send(out_channel, ":information_source: " + message.author.mention + " | I'm not connected to a channel yet. Type `;connect` first.");
-	elif playing:
-		await discord_send(out_channel, ":information_source: " + message.author.mention + " | I'm already playing from the queue. Type `;skip` to skip the current song.")
-	else:
-		if not playing:
-			await discord_send(out_channel, ":arrow_down: " + message.author.mention + " | Loading queue...");
-			await songLoop()
-
 #Functions
 
 async def songLoop():
-	global player, voice, playing, out_channel
+	global player, voice, out_channel
 	playing = True
-	while (playing):
+	while voice != None:
 		try:
 			response = urlopen('https://www.woofbark.dog/discordbot/popsong').read().decode().split(",")
 			url = str(response[0])
@@ -187,28 +177,13 @@ async def songLoop():
 				player.start()
 				await client.change_status(discord.Game(name=str(left) + " songs queued."), False)
 				await discord_send(out_channel, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
-				await waitTillDone()
+				while not player.is_done():
+					await asyncio.sleep(0.3)
 			else:
 				await asyncio.sleep(1)
 		except Exception as e:
-			print(e)
-			await asyncio.sleep(5)
-
-async def waitTillDone():
-	global player, voice, allow_nick_changing
-	buff = CB(player.title + "   ") #EM Spaces dont replace
-
-	while not player.is_done():
-		if allow_nick_changing:
-			# try:
-			# await client.change_nickname(last_message_source.server.me, "▶ " + buff.getString()[:21])
-			# buff.circulate()
-			# buff.circulate()
-			await asyncio.sleep(0.5)
-			# except Exception as e:
-			#   print(e)
-			# 	print("some weird error in waittilldone")
-	return True
+			print("[ERROR]\n" + e)
+			await asyncio.sleep(1)
 
 async def nick_default():
 	global allow_nick_changing, original_nick
