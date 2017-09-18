@@ -170,7 +170,7 @@ async def songLoop():
 	global player, voice, out_channel, sid
 	while voice != None:
 		try:
-			response = urlopen('https://www.woofbark.dog/discordbot/data/queue_pull?id=' + sid).read().decode().split(",")
+			response = urlopen('https://www.woofbark.dog/queuebot/data/queue_pull?id=' + sid).read().decode().split(",")
 			url = str(response[0])
 			if url != "nosong":
 				left = str(response[1])
