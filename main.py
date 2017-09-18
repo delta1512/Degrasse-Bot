@@ -12,6 +12,7 @@ allow_nick_changing = True
 last_message_source = None
 out_channel = None
 original_nick = None
+sid = '';
 
 upemoji = "";
 downemoji = "";
@@ -27,7 +28,8 @@ async def on_ready():
 	original_nick = out_channel.server.me
 	upemoji, downemoji = helpers.findVoteEmojis(client)
 	print('[DEBUG] Bot initialized successfully')
-	print('[DEBUG] Server id is ' +  + discord.Server.id)
+	for server in client.servers:
+		print('[DEBUG] Is in server ' + server.id)
 
 @client.event
 async def on_message(message):
@@ -132,7 +134,9 @@ async def song_skip(message):
 	await discord_send(out_channel, ':white_check_mark: ' + message.author.mention + ' | Skipped the current song!')
 
 async def voice_connect(message):
-	global voice, player, out_channel
+	global voice, player, out_channel, sid
+
+	sid = message.server.id;
 
 	if voice != None:
 		await discord_send(out_channel, ":information_source: " + message.author.mention + " | I'm already playing from the queue. Type `;skip` to skip the current song.")
@@ -163,10 +167,10 @@ async def voice_disconnect(message):
 #Intrinsic Functions
 
 async def songLoop():
-	global player, voice, out_channel
+	global player, voice, out_channel, sid
 	while voice != None:
 		try:
-			response = urlopen('https://www.woofbark.dog/discordbot/data/queue_pull?id=' + discord.Server.id).read().decode().split(",")
+			response = urlopen('https://www.woofbark.dog/discordbot/data/queue_pull?id=' + sid).read().decode().split(",")
 			url = str(response[0])
 			if url != "nosong":
 				left = str(response[1])
