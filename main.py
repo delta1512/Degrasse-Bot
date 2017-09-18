@@ -27,6 +27,7 @@ async def on_ready():
 	original_nick = out_channel.server.me
 	upemoji, downemoji = helpers.findVoteEmojis(client)
 	print('[DEBUG] Bot initialized successfully')
+	print('[DEBUG] Server id is ' +  + discord.Server.id)
 
 @client.event
 async def on_message(message):
@@ -165,7 +166,7 @@ async def songLoop():
 	global player, voice, out_channel
 	while voice != None:
 		try:
-			response = urlopen('https://www.woofbark.dog/discordbot/popsong').read().decode().split(",")
+			response = urlopen('https://www.woofbark.dog/discordbot/data/queue_pull?id=' + discord.Server.id).read().decode().split(",")
 			url = str(response[0])
 			if url != "nosong":
 				left = str(response[1])
