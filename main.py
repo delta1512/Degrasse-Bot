@@ -162,7 +162,7 @@ async def voice_connect(message):
 						break
 			if found_user: break
 		await discord_send(client.get_channel(out_channels[message.server.id]), ":arrow_down: " + message.author.mention + " | Loading queue...");
-		await songLoop()
+		await songLoop(message)
 
 async def voice_disconnect(message):
 	global voice, player, out_channels
@@ -173,7 +173,7 @@ async def voice_disconnect(message):
 	await discord_send(client.get_channel(out_channels[message.server.id]), ":white_check_mark: " + message.author.mention + " | Disconnected.")
 
 #Intrinsic Functions
-async def songLoop():
+async def songLoop(message):
 	global player, voice, out_channels, sid
 	while voice != None:
 		try:
@@ -190,7 +190,7 @@ async def songLoop():
 			else:
 				await asyncio.sleep(1)
 		except Exception as e:
-			print("[ERROR]\n", e)
+			print("[ERROR] In songloop()\n", e)
 			await asyncio.sleep(1)
 
 async def nick_default():
