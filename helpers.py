@@ -53,29 +53,38 @@ def destroy_image(args, images):
 	results = []
 	image = images[0]['url']
 	destroyer = Destroyer(image)
-	for i, arg in enumerate(args):
-		if arg == 'grey':
-			destroyer.greyscale()
-		elif arg == 'jumble':
-			destroyer.edge_jumbler()
-		elif arg == 'incbright':
-			destroyer.incremental_brightness()
-		elif arg == 'randbright':
-			destroyer.random_brightness()
-		elif arg == 'displace':
-			thresh = float(args[i+1])
-			destroyer.random_displacer(thresh)
-		elif arg == 'scratch':
-			thresh = float(args[i+1])
-			prop_length = int(args[i+2])
-			destroyer.scratches(thresh, prop_length)
-		elif arg == 'worms':
-			amount = int(args[i+1])
-			minP = int(args[i+2])
-			thresh = float(args[i+3])
-			destroyer.worms(amount, minP, thresh)
-		destroyer.prepare_reiterate()
-	destroyer.save('0')
+	try:
+		for i, arg in enumerate(args):
+			if arg == 'grey':
+				destroyer.greyscale()
+			elif arg == 'jumble':
+				destroyer.edge_jumbler()
+			elif arg == 'incbright':
+				destroyer.incremental_brightness()
+			elif arg == 'randbright':
+				destroyer.random_brightness()
+			elif arg == 'displace':
+				thresh = float(args.pop(i+1))
+				destroyer.random_displacer(thresh)
+			elif arg == 'scratch':
+				thresh = float(args.pop(i+1))
+				prop_length = int(args.pop(i+2))
+				destroyer.scratches(thresh, prop_length)
+			elif arg == 'worms':
+				amount = int(args.pop(i+1))
+				minP = int(args.pop(i+2))
+				thresh = float(args.pop(i+3))
+				destroyer.worms(amount, minP, thresh)
+			else:
+				return 1
+			destroyer.prepare_reiterate()
+		destroyer.save('0')
+		return 0
+	except Exception as e:
+		print('[ERROR] Error caught in destroy_image()')
+		print(e)
+		return 1
+
 
 
 async def asciify(client, message):

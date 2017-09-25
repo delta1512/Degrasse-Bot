@@ -5,35 +5,35 @@ from random import randint
 from urllib.request import urlopen
 from os import popen
 
+client = discord.Client()
 pre = ';'
 blacklist = []
 voice = None
 allow_nick_changing = True
 last_message_source = None
-out_channel = None
+out_channels = {'201859187565789184' : '307345792296026112',
+				'332660239104999424' : '356233195986878495'}
 original_nick = None
-sid = '';
-
-upemoji = "";
-downemoji = "";
-
-client = discord.Client()
+sid = ''
+upemoji = ''
+downemoji = ''
 blacklist = helpers.updateBlacklist()
 
 @client.event
 async def on_ready():
-	global out_channel, original_nick, upemoji, downemoji
+	global out_channels, original_nick, upemoji, downemoji
 
-	out_channel = client.get_channel("307345792296026112")
-	original_nick = out_channel.server.me
 	upemoji, downemoji = helpers.findVoteEmojis(client)
 	print('[DEBUG] Bot initialized successfully')
 	for server in client.servers:
+		#hashed out for future deliberation on method
+		#out_channels[server.id] = server.default_channel.id
 		print('[DEBUG] Is in server ' + server.id)
+
 
 @client.event
 async def on_message(message):
-	global last_message_source, out_channel, upemoji, downemoji, blacklist
+	global last_message_source, upemoji, downemoji, blacklist
 
 	if message.content.startswith(pre) and (not ';-;' in message.content) and (not message.content.startswith(pre + 'destroy')):
 		await client.delete_message(message)
@@ -67,8 +67,14 @@ async def on_message(message):
 			await helpers.asciify(client, message)
 
 		elif cmd.startswith(pre + 'destroy'):
-			helpers.destroy_image(message.content.split()[1:], message.attachments)
-			await client.send_file(message.channel, '/tmp/0.png')
+			if len(message.attachments) > 0:
+				exit_code = helpers.destroy_image(message.content.split()[1:], message.attachments)
+				if exit_code == 0:
+					await client.send_file(message.channel, '/tmp/0.png')
+				else:
+					await discord_send(message.channel, ':thinking: | Something went wrong:\n`Input: ' + message.content + '`')
+			else:
+				await discord_send(message.channel, ':grey_question: | No images were supplied')
 
 		#Administration commands
 		elif cmd.startswith(pre + 'prefix'):
@@ -114,35 +120,34 @@ async def roll_the_dice(message):
 		await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Invalid number')
 
 async def set_prefix(message):
-	global out_channel
 	mlength = 3
 	args = message.content.split()
 	if len(args) == 2:
 		if len(args[1]) <= mlength:
 			global pre;
 			pre = str(args[1])
-			await discord_send(out_channel, ':asterisk: ' + message.author.mention + ' | Prefix changed to: `' + pre + '`')
+			await discord_send(message.channel, ':asterisk: ' + message.author.mention + ' | Prefix changed to: `' + pre + '`')
 		else:
-			await discord_send(out_channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Prefix is too long. Maximum length: ' + string(mlength))
+			await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Prefix is too long. Maximum length: ' + string(mlength))
 	else:
-		await discord_send(out_channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Correct usage: `prefix [newprefix]`')
+		await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Correct usage: `prefix [newprefix]`')
 
 async def song_play(message):
 	await discord_send(message.channel, ':negative_squared_cross_mark: ' + message.author.mention + ' | Add songs here > http://queue-bot.tk/')
 
 async def song_skip(message):
-	global player, out_channel
+	global player, out_channels
 
 	player.stop()
-	await discord_send(out_channel, ':white_check_mark: ' + message.author.mention + ' | Skipped the current song!')
+	await discord_send(client.get_channel(out_channels[message.server.id]), ':white_check_mark: ' + message.author.mention + ' | Skipped the current song!')
 
 async def voice_connect(message):
-	global voice, player, out_channel, sid
+	global voice, player, out_channels, sid
 
 	sid = message.server.id;
 
 	if voice != None:
-		await discord_send(out_channel, ":information_source: " + message.author.mention + " | I'm already playing from the queue. Type `;skip` to skip the current song.")
+		await discord_send(client.get_channel(out_channels[message.server.id]), ":information_source: " + message.author.mention + " | I'm already playing from the queue. Type `;skip` to skip the current song.")
 	else:
 		for vchannel in message.author.server.channels:
 			found_user = False
@@ -152,25 +157,24 @@ async def voice_connect(message):
 					print("[DEBUG] Connected Users: " + member.name)
 					if member.id == message.author.id:
 						voice = await client.join_voice_channel(client.get_channel(vchannel.id))
-						await discord_send(out_channel, ":white_check_mark: " + message.author.mention + " | Joined your voice channel!")
+						await discord_send(client.get_channel(out_channels[message.server.id]), ":white_check_mark: " + message.author.mention + " | Joined your voice channel!")
 						found_user = True
 						break
 			if found_user: break
-		await discord_send(out_channel, ":arrow_down: " + message.author.mention + " | Loading queue...");
+		await discord_send(client.get_channel(out_channels[message.server.id]), ":arrow_down: " + message.author.mention + " | Loading queue...");
 		await songLoop()
 
 async def voice_disconnect(message):
-	global voice, player, out_channel
+	global voice, player, out_channels
 
 	await voice.disconnect()
 	voice = None
 	player.stop()
-	await discord_send(out_channel, ":white_check_mark: " + message.author.mention + " | Disconnected.")
+	await discord_send(client.get_channel(out_channels[message.server.id]), ":white_check_mark: " + message.author.mention + " | Disconnected.")
 
 #Intrinsic Functions
-
 async def songLoop():
-	global player, voice, out_channel, sid
+	global player, voice, out_channels, sid
 	while voice != None:
 		try:
 			response = urlopen('https://www.woofbark.dog/queuebot/data/queue_pull?id=' + sid).read().decode().split(",")
@@ -180,13 +184,13 @@ async def songLoop():
 				player = await voice.create_ytdl_player(url)
 				player.start()
 				await client.change_presence(game=discord.Game(name=left + " Songs Queued"))
-				await discord_send(out_channel, ":arrow_forward: Queue | Now Playing **" + player.title + "**");
+				await discord_send(client.get_channel(out_channels[message.server.id]), ":arrow_forward: Queue | Now Playing **" + player.title + "**");
 				while not player.is_done():
 					await asyncio.sleep(0.3)
 			else:
 				await asyncio.sleep(1)
 		except Exception as e:
-			print("[ERROR]\n" + e)
+			print("[ERROR]\n", e)
 			await asyncio.sleep(1)
 
 async def nick_default():
