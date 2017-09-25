@@ -1,42 +1,40 @@
 import discord
-from urllib.request import urlopen
 import asyncio
+from urllib.request import urlopen
+from ImageDestroyer import Destroyer
 
 def updateBlacklist():
 	blacklist = []
-	file = open("blacklist.dat", 'a+')
-	file.close()
-	file = open("blacklist.dat", 'r')
-	for line in file:
+	f = open("blacklist.dat", 'a+')
+	f.close()
+	f = open("blacklist.dat", 'r')
+	for line in f:
 	    blacklist.append(line.rstrip().split("#")[0])
-	file.close()
+	f.close()
 	return blacklist;
 
 def blacklist(uid, uname):
-	file = open("blacklist.dat", 'a+')
-	file.write(uid + "#" + uname + "\r\n")
-	file.close()
+	f = open("blacklist.dat", 'a+')
+	f.write(uid + "#" + uname + "\r\n")
+	f.close()
 	return updateBlacklist()
 
 def pardon(uid, uname):
 	blacklist = []
-	file = open("blacklist.dat", 'a+')
-	file.close()
-	file = open("blacklist.dat", 'r')
-	for line in file:
+	f = open("blacklist.dat", 'a+')
+	f.close()
+	f = open("blacklist.dat", 'r')
+	for line in f:
 	    blacklist.append(line.rstrip())
-	file.close()
-
+	f.close()
 	try:
 		blacklist.pop(blacklist.index(uid + "#" + uname))
 	except:
-		print("doesnt exist lololololol")
-
-	file = open("blacklist.dat", 'w+')
+		pass #user doesn't exist
+	f = open("blacklist.dat", 'w+')
 	for user in blacklist:
-		file.write(user + "\r\n")
-	file.close()
-
+		f.write(user + "\r\n")
+	f.close()
 	return blacklist
 
 def findVoteEmojis(client):
@@ -50,6 +48,35 @@ def findVoteEmojis(client):
 			downemoji = x.name + ":" + x.id
 
 	return upemoji, downemoji
+
+def destroy_image(args, images):
+	results = []
+	image = images[0]['url']
+	destroyer = Destroyer(image)
+	for i, arg in enumerate(args):
+		if arg == 'grey':
+			destroyer.greyscale()
+		elif arg == 'jumble':
+			destroyer.edge_jumbler()
+		elif arg == 'incbright':
+			destroyer.incremental_brightness()
+		elif arg == 'randbright':
+			destroyer.random_brightness()
+		elif arg == 'displace':
+			thresh = float(args[i+1])
+			destroyer.random_displacer(thresh)
+		elif arg == 'scratch':
+			thresh = float(args[i+1])
+			prop_length = int(args[i+2])
+			destroyer.scratches(thresh, prop_length)
+		elif arg == 'worms':
+			amount = int(args[i+1])
+			minP = int(args[i+2])
+			thresh = float(args[i+3])
+			destroyer.worms(amount, minP, thresh)
+		destroyer.prepare_reiterate()
+	destroyer.save('0')
+
 
 async def asciify(client, message):
 	args = message.content.split()
@@ -75,3 +102,9 @@ async def asciify(client, message):
 		response += "\n" + urlopen('http://artii.herokuapp.com/make?font=small&text=' + line).read().decode();
 	response += "```\n -- " + message.author.mention;
 	await client.send_message(message.channel, response)
+
+'''
+###
+
+destroy_image(['jumble'], [{'url' : 'https://cdn.discordapp.com/attachments/320670306010398730/361697510470713344/unknown.png'}])
+'''

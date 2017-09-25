@@ -35,12 +35,12 @@ async def on_ready():
 async def on_message(message):
 	global last_message_source, out_channel, upemoji, downemoji, blacklist
 
-	if message.content.startswith(pre) and message.content != ";-;":
+	if message.content.startswith(pre) and (not ';-;' in message.content) and (not message.content.startswith(pre + 'destroy')):
 		await client.delete_message(message)
 	if not message.author.id in blacklist:
 
 		#Voting reaction handler
-		if len(message.attachments) > 0 or len(message.embeds) > 0:
+		if (len(message.attachments) > 0 or len(message.embeds) > 0) and (not message.content.startswith(pre)):
 			await client.add_reaction(message, upemoji)
 			await client.add_reaction(message, downemoji)
 
@@ -65,6 +65,10 @@ async def on_message(message):
 
 		elif cmd.startswith(pre + 'asciify'):
 			await helpers.asciify(client, message)
+
+		elif cmd.startswith(pre + 'destroy'):
+			helpers.destroy_image(message.content.split()[1:], message.attachments)
+			await client.send_file(message.channel, '/tmp/0.png')
 
 		#Administration commands
 		elif cmd.startswith(pre + 'prefix'):
@@ -94,7 +98,6 @@ async def on_message(message):
 			await song_skip(message)
 
 #Command definitions
-
 async def roll_the_dice(message):
 	args = message.content.split()
 	if len(args) > 1:
