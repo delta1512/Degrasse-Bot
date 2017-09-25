@@ -49,11 +49,19 @@ def findVoteEmojis(client):
 
 	return upemoji, downemoji
 
-def destroy_image(args, images):
-	results = []
+def destroy_image(tmpargs, images):
+	commands = ['grey', 'jumble', 'incbright', 'randbright', 'displace',
+				'scratch', 'worms']
+	args = []
+	vals = []
 	image = images[0]['url']
 	destroyer = Destroyer(image)
 	try:
+		for x in tmpargs:
+			if x not in commands:
+				vals.append(x)
+			else:
+				args.append(x)
 		for i, arg in enumerate(args):
 			if arg == 'grey':
 				destroyer.greyscale()
@@ -64,16 +72,16 @@ def destroy_image(args, images):
 			elif arg == 'randbright':
 				destroyer.random_brightness()
 			elif arg == 'displace':
-				thresh = float(args.pop(i+1))
+				thresh = float(vals.pop(0))
 				destroyer.random_displacer(thresh)
 			elif arg == 'scratch':
-				thresh = float(args.pop(i+1))
-				prop_length = int(args.pop(i+2))
+				thresh = float(vals.pop(0))
+				prop_length = int(vals.pop(0))
 				destroyer.scratches(thresh, prop_length)
 			elif arg == 'worms':
-				amount = int(args.pop(i+1))
-				minP = int(args.pop(i+2))
-				thresh = float(args.pop(i+3))
+				amount = int(vals.pop(0))
+				minP = int(vals.pop(0))
+				thresh = float(vals.pop(0))
 				destroyer.worms(amount, minP, thresh)
 			else:
 				return 1

@@ -102,7 +102,7 @@ class Destroyer:
                 self.final_image.append(tuple(pixel))
 
     def random_displacer(self, thresh):
-        thresh = check_thresh(thresh)
+        thresh = self.check_thresh(thresh)
         for x in range(self.h):
             for y in range(self.w):
                 pixel = self.pixels[y, x]
@@ -118,7 +118,7 @@ class Destroyer:
                 self.final_image.append(pixel)
 
     def scratches(self, thresh, prop_length):
-        thresh = check_thresh(thresh)
+        thresh = self.check_thresh(thresh)
         propagation = 0
         prev = None
         for x in range(self.h):
@@ -133,7 +133,7 @@ class Destroyer:
                 self.final_image.append(pixel)
 
     def worms(self, amount, minP, thresh):
-        thresh = check_thresh(thresh)
+        thresh = self.check_thresh(thresh)
         for spawn in range(amount):
             y, x = random.randint(0, self.w-1), random.randint(0, self.h-1)
             init = minP
