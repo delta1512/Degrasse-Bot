@@ -67,7 +67,7 @@ async def on_message(message):
 			await helpers.asciify(client, message)
 
 		elif cmd.startswith(pre + 'destroy'):
-			if len(message.attachments) > 0:
+			if (len(message.attachments) > 0 or message.content.split()[1].startswith('http')):
 				exit_code = helpers.destroy_image(message.content.split()[1:], message.attachments)
 				if exit_code == 0:
 					await client.send_file(message.channel, '/tmp/0.png')

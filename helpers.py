@@ -54,9 +54,12 @@ def destroy_image(tmpargs, images):
 				'scratch', 'worms']
 	args = []
 	vals = []
-	image = images[0]['url']
-	destroyer = Destroyer(image)
+	if len(images) > 0:
+		image = images[0]['url']
+	else:
+		image = tmpargs.pop(0)
 	try:
+		destroyer = Destroyer(image)
 		for x in tmpargs:
 			if x not in commands:
 				vals.append(x)
