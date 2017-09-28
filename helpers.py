@@ -91,9 +91,7 @@ def destroy_image(tmpargs, images):
 			destroyer.prepare_reiterate()
 		destroyer.save('0')
 		return 0
-	except Exception as e:
-		print('[ERROR] Error caught in destroy_image()')
-		print(e)
+	except:
 		return 1
 
 
@@ -122,9 +120,3 @@ async def asciify(client, message):
 		response += "\n" + urlopen('http://artii.herokuapp.com/make?font=small&text=' + line).read().decode();
 	response += "```\n -- " + message.author.mention;
 	await client.send_message(message.channel, response)
-
-'''
-###
-
-destroy_image(['jumble'], [{'url' : 'https://cdn.discordapp.com/attachments/320670306010398730/361697510470713344/unknown.png'}])
-'''
