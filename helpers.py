@@ -3,6 +3,55 @@ import asyncio
 from urllib.request import urlopen
 from ImageDestroyer import Destroyer
 
+man_man = ''':information_source: | Did not specify any bot function.
+```Options
+queue
+imdestroy
+other```'''
+
+man_queue = '''```Queuebot music queueing service:
+The music functionality of the bot does not handle links sent within any
+textual chat, however handling the entire queue service on a seperate entity
+as a web service.
+
+To access the service visit: https://www.woofbark.dog/queuebot/?id=[SERVER_ID]
+where SERVER_ID is the ID of the server the bot is operating its music service
+on.
+
+The server ID can be accessed by enabling developer mode in your discord settings
+and right-clicking on the server name/dropdown in the top left corner and
+selecting "Copy ID"
+
+Commands:
+	connect 	- Tells the bot to join the voice channel you are currently in.
+				Note that this command will only work if you are currently in a
+				voice chat.
+	disconnect  - Tells the bot to leave any connected voice chats within the
+				server. This command can be shortened to "dc".```'''
+
+man_imdestroy = '''```Image Destroyer application:
+Image Destroyer is a functionality of the bot added that allows for the
+destruction of images based on implemented image processing algorithms.
+
+Usage:
+The bot should be given an image as either an attachment to a message or a URL
+placed directly after the calling command. In time, it will then provide a
+processed image as a result of the called arguments.
+
+Command:
+	destroy [URL] {ARGS}
+	- Calls the image destroyer program with the attached image or URL provided
+	by the "[URL]" argument, performing the operations signified by "{ARGS}".
+
+Arguments {ARGS}:
+	grey
+	jumble
+	incbright
+	randbright
+	displace [threshold]	- "threshold" usually denotes a chance of some sort
+	scratch [threshold] [max propagation length]
+	worms [amount] [min propagation] [threshold]```'''
+
 def updateBlacklist():
 	blacklist = []
 	f = open("blacklist.dat", 'a+')
@@ -94,7 +143,17 @@ def destroy_image(tmpargs, images):
 	except:
 		return 1
 
-
+async def man(client, message):
+	args = message.content.split()
+	if len(args) > 1:
+		if args[1] == 'queue':
+			await client.send_message(message.channel, man_queue)
+		elif args[1] == 'imdestroy':
+			await client.send_message(message.channel, man_imdestroy)
+		else:
+			await client.send_message(message.channel, ':thinking: | It appears the manual page you are attempting to look up does not exist. Try annoying the developers to make some.')
+	else:
+		await client.send_message(message.channel, man_man)
 
 async def asciify(client, message):
 	args = message.content.split()

@@ -66,6 +66,9 @@ async def on_message(message):
 		elif cmd.startswith(pre + 'asciify'):
 			await helpers.asciify(client, message)
 
+		elif (cmd.startswith(pre + 'help') or cmd.startswith(pre + 'man')):
+			await helpers.man(client, message)
+
 		elif cmd.startswith(pre + 'destroy'):
 			if (len(message.attachments) > 0 or message.content.split()[1].startswith('http')):
 				exit_code = helpers.destroy_image(message.content.split()[1:], message.attachments)
