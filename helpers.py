@@ -53,6 +53,16 @@ Arguments {ARGS}:
 	worms [amount] [min propagation] [threshold]
 	compress [threshold]```'''
 
+man_other = '''```Other functionality:
+rtd [die size]	- Roll the dice. Returns a random value between 1 and the size
+				of the die. Defaults to a die size of 6.
+time			- Returns the current unix and nanosecond time.
+asciify	[text]	- Converts text into ascii character art
+prefix [prefix]	- Sets a new prefix for the bot to interpret
+blacklist {usr}	- prevents a user from using the bot. Simply mention the user.
+pardon {usr}	- Opposite to blacklist. Mention users to be pardoned.```
+'''
+
 def updateBlacklist():
 	blacklist = []
 	f = open("blacklist.dat", 'a+')
@@ -154,6 +164,8 @@ async def man(client, message):
 			await client.send_message(message.channel, man_queue)
 		elif args[1] == 'imdestroy':
 			await client.send_message(message.channel, man_imdestroy)
+		elif args[1] == 'other':
+			await client.send_message(message.channel, man_other)
 		else:
 			await client.send_message(message.channel, ':thinking: | It appears the manual page you are attempting to look up does not exist. Try annoying the developers to make some.')
 	else:
