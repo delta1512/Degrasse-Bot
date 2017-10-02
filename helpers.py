@@ -50,7 +50,8 @@ Arguments {ARGS}:
 	randbright
 	displace [threshold]	- "threshold" usually denotes a chance of some sort
 	scratch [threshold] [max propagation length]
-	worms [amount] [min propagation] [threshold]```'''
+	worms [amount] [min propagation] [threshold]
+	compress [threshold]```'''
 
 def updateBlacklist():
 	blacklist = []
@@ -100,7 +101,7 @@ def findVoteEmojis(client):
 
 def destroy_image(tmpargs, images):
 	commands = ['grey', 'jumble', 'incbright', 'randbright', 'displace',
-				'scratch', 'worms']
+				'scratch', 'worms', 'compress']
 	args = []
 	vals = []
 	if len(images) > 0:
@@ -135,6 +136,9 @@ def destroy_image(tmpargs, images):
 				minP = int(vals.pop(0))
 				thresh = float(vals.pop(0))
 				destroyer.worms(amount, minP, thresh)
+			elif arg == 'compress':
+				thresh = float(vals.pop(0))
+				destroyer.compress(thresh)
 			else:
 				return 1
 			destroyer.prepare_reiterate()

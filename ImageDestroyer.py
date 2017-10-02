@@ -160,6 +160,25 @@ class Destroyer:
             for y in range(self.w):
                 self.final_image.append(self.pixels[y, x])
 
+    def compress(self, thresh):
+        thresh = self.check_thresh(thresh)
+        self.final_image = list(self.seq_image())
+        start, stop = 0, 0
+        avgstart = self.average(self.final_image[0])
+        avglist = []
+        for i, pixel in enumerate(self.seq_image()):
+            pixavg = self.average(pixel)
+            if ((-thresh * avgstart) <= pixavg <= (thresh * avgstart)) or len(avglist) < 1:
+                avglist.append(pixavg)
+                stop = i
+            else:
+                colour = self.average(avglist)
+                for i in range(start, stop):
+                    self.final_image[i] = (colour, colour, colour)
+                start = stop + 1
+                avglist = []
+                avgstart = self.average(self.final_image[start])
+
     def save(self, filename):
         self.final_image = [pix for pix in self.seq_image()]
         outimage = Image.new('RGB', (self.w, self.h))
