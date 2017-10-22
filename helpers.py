@@ -57,6 +57,7 @@ man_other = '''```Other functionality:
 rtd [die size]	- Roll the dice. Returns a random value between 1 and the size
 				of the die. Defaults to a die size of 6.
 time			- Returns the current unix and nanosecond time.
+tz				- Shows preconfigured timezones
 asciify	[text]	- Converts text into ascii character art
 prefix [prefix]	- Sets a new prefix for the bot to interpret
 blacklist {usr}	- prevents a user from using the bot. Simply mention the user.
