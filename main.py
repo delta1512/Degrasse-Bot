@@ -60,6 +60,9 @@ async def on_message(message):
 		elif cmd.startswith(pre + 'time'):
 			await discord_send(message.channel,  ':clock3: ' + message.author.mention + ' | Time [Unix | Nano]: ' + popen('date \'+%s %N\'').read())
 
+		elif cmd.startswith(pre + 'tz'):
+			await discord_send(message.channel, ':clock3: | Showing timezone info:\n\tCanada Pacific | ' + popen('TZ="Canada/Pacific" date \'+%T %a %b %d\'').read() + '\n\tCanada Mountain | ' + popen('TZ="Canada/Mountain" date \'+%T %a %b %d\'').read() + '\n\tAustralia Sydney | ' + popen('TZ="Australia/Sydney" date \'+%T %a %b %d\'').read())
+
 		elif cmd.startswith('what time is it'):
 			await discord_send(message.channel, "ARE YOU WIMBLY WOMBLY MATE!? ITS ALMOST SAX APPLE DIN DIN SPROINGO TOINGO SIXY CHAP")
 
