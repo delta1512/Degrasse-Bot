@@ -4,6 +4,7 @@ import helpers
 from random import randint
 from urllib.request import urlopen
 from os import popen
+from sys import exit
 
 client = discord.Client()
 pre = ';'
@@ -61,8 +62,7 @@ async def on_message(message):
 			await discord_send(message.channel,  ':clock3: ' + message.author.mention + ' | Time [Unix | Nano]: ' + popen('date \'+%s %N\'').read())
 
 		elif cmd.startswith(pre + 'tz'):
-			await discord_send(message.channel, ':clock3: | Showing timezone info:\n\tCanada Pacific | ' + popen('TZ="Canada/Pacific" date \'+%l:%M %p %a %b %d\'').read() + '\n\tCanada Mountain | ' + popen('TZ="Canada/Mountain" date \'+%l:%M %p %a %b %d\'').read() + '\n\tAustralia Sydney | ' + popen('TZ="Australia/Sydney" date \'+%l:%M %p %a %b %d\'').read())
-
+                    await discord_send(message.channel, ':clock3: | Showing timezone info:\n\tCanada Pacific :flag_ca: ' + popen('TZ="Canada/Pacific" date \'+%l:%M %p %a %b %d\'').read() + '\n\tCanada Mountain :flag_ca: ' + popen('TZ="Canada/Mountain" date \'+%l:%M %p %a %b %d\'').read() + '\n\tAmerica NY :flag_us: ' + popen('TZ="America/New_York" date \'+%l:%M %p %a %b %d\'').read() + '\n\tAustralia Sydney :flag_au: ' + popen('TZ="Australia/Sydney" date \'+%l:%M %p %a %b %d\'').read())
 		elif cmd.startswith('what time is it'):
 			await discord_send(message.channel, "ARE YOU WIMBLY WOMBLY MATE!? ITS ALMOST SAX APPLE DIN DIN SPROINGO TOINGO SIXY CHAP")
 
@@ -208,4 +208,10 @@ async def discord_send(channel, string):
 	# await nick_default()
 	await client.send_message(channel, string)
 
-client.run('MzM5MTc2MTEyMzA1MzQwNDE2.DF1qVA.UqW9GwapGBzyAIIw-UOb4dbKY-w')
+try:
+	with open('API.key', 'r') as APIkeyfile:
+		APIkey = str(APIkeyfile.read().replace('\n', ''))
+except:
+	print('[ERROR] API key failed to load')
+	exit()
+client.run(APIkey)
